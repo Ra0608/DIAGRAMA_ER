@@ -184,4 +184,79 @@ FROM clientis c
 JOIN ordenis o ON c.id = o.cliente_id
 JOIN itenms i ON o.id = i.orden_id
 GROUP BY c.id, c.nombre;
+---Con esta explicación tu tarea es agregar las restricciones de llave foránea faltantes a las tablas
+--Producto -> Categoria
+ALTER TABLE productos
+ADD CONSTRAINT producto_categoria
+FOREIGN KEY (categoria_id) REFERENCES categorias(id);
+
+---Stock -> Sucursal & Producto
+
+ALTER TABLE stocks
+ADD CONSTRAINT stock_sucursal
+FOREIGN KEY (sucursal_id) REFERENCES sucursales(id),
+ADD CONSTRAINT stock_producto
+FOREIGN KEY (producto_id) REFERENCES productos(id);
+
+--Orden -> Cliente & Sucursal
+
+ALTER TABLE ordenes
+ADD CONSTRAINT orden_cliente
+FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+ADD constraint orden_sucursal
+FOREIGN KEY (sucursal_id) REFERENCES sucursales(id);
+
+-- Item -> Orden & Producto
+
+ALTER TABLE items
+ADD CONSTRAINT fk_item_orden
+FOREIGN KEY (orden_id) REFERENCES ordenes(id),
+ADD CONSTRAINT fk_item_producto
+FOREIGN KEY (producto_id) REFERENCES productos(id);
+
+--Calcular el precio promedio de los productos en cada categoría
+SELECT c.nombre AS categoria,AVG(p.precio_unitario) AS precio_promedio
+FROM productos p
+JOIN categorias c ON p.categoria_id = c.id
+GROUP BY c.nombre;
+
+---Obtener la cantidad total de productos en stock por categoría
+SELECT c.nombre AS categoria,SUM(s.cantidad) AS cantidad_total
+FROM stocsk s
+JOIN productos p ON s.producto_id = p.id
+JOIN categorias c ON p.categoria_id = c.id
+GROUP BY c.nombre;
+
+---Calcular el total de ventas por sucursal
+
+SELECT s.nombre AS sucursal,SUM(o.total) AS total_ventas
+FROM ordenes o
+JOIN sucursales s ON o.sucursal_id = s.id
+GROUP BY s.nombre;
+
+---Obtener el cliente que ha realizado el mayor monto de compras
+SELECT c.nombre AS cliente,SUM(o.total) AS total_compras
+FROM ordenes o
+JOIN clientes c ON o.cliente_id = c.id
+GROUP BY c.nombre
+ORDER BY total_compras DESC
+LIMIT 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
